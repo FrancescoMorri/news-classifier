@@ -18,6 +18,14 @@ def load_data_on_cloud(date, evaluation, key):
     doc_ref.update({u'points': firestore.ArrayUnion([evaluation])})
     doc_ref.update({u'date': firestore.ArrayUnion([date])})
 
+def update_data_on_cloud(evaluation, key):
+    db = firestore.Client(credentials=key, project="news-classifier-bb21e")
+
+    doc_ref = db.collection("news-history").document("date-points")
+    values = doc_ref.get().to_dict()['points']
+    values[-1] = evaluation
+    doc_ref.update({u'points': values})
+
 def download_data_from_cloud(key):
     db = firestore.Client(credentials=key, project="news-classifier-bb21e")
 
@@ -109,7 +117,7 @@ if submitted:
             if final_val == today_econ_val:
                 pass
             else:
-                load_data_on_cloud(datetime.now(), final_val, creds)
+                update_data_on_cloud(final_val, creds)
         else:
             load_data_on_cloud(datetime.now(), final_val, creds)
 
