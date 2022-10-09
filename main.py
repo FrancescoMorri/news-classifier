@@ -14,9 +14,12 @@ def load_data_on_cloud(date, evaluation, key):
     db = firestore.Client(credentials=key, project="news-classifier-bb21e")
 
     doc_ref = db.collection("news-history").document("date-points")
+    values = doc_ref.get().to_dict()['points']
+    values.append(evaluation)
 
-    doc_ref.update({u'points': firestore.ArrayUnion([evaluation])})
+    doc_ref.update({u'points': values})
     doc_ref.update({u'date': firestore.ArrayUnion([date])})
+
 
 def update_data_on_cloud(evaluation, key):
     db = firestore.Client(credentials=key, project="news-classifier-bb21e")
