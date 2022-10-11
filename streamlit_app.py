@@ -128,6 +128,7 @@ if submitted:
         st.write(final_val)
         st.subheader("Historical data:")
         plot_data = pd.DataFrame(download_data_from_cloud(creds))
+        plot_data['date'] = plot_data['date'].dt.strftime('%d %m %Y')
         st.line_chart(plot_data, x='date', y='points')
 
         st.subheader("and all the news found:")
@@ -137,6 +138,7 @@ if submitted:
     else:
         st.info("No news, no predictions, try later ;) (still get the historical data)", icon="❗")
         plot_data = pd.DataFrame(download_data_from_cloud(creds))
+        plot_data['date'] = plot_data['date'].dt.strftime('%d %m %Y')
         st.line_chart(plot_data, x='date', y='points')
 
 
