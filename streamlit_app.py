@@ -81,7 +81,7 @@ st.header("Economic News Classifier")
 
 st.caption("This app scrapes three news website (CNBC, Reuters, Business Standard) and uses a fine-tuned Bert model to classify the news.")
 st.caption("A news is either 1 (positive), 0 (neutral) or -1 (negative). Then it outputs the mean of all the news founded, as an indicator of today economic state.")
-st.caption("Also it saves on a cloud database the results of the day, plotting every time a graph showing the data history.")
+st.caption("Also it saves on a cloud database the results of the day, plotting every time a graph showing the data history and the incremental values (showing the sum of previous+current day).")
 
 
 st.subheader("Scraping News")
@@ -94,6 +94,7 @@ with st.form('Scraping News'):
         found_news = True
     
     submitted = st.form_submit_button("Continue")
+
 
 if submitted:
     if found_news:
@@ -126,10 +127,18 @@ if submitted:
 
         st.subheader("The evaluation of today economic situation is:")
         st.write(final_val)
+
         st.subheader("Historical data:")
         plot_data = pd.DataFrame(download_data_from_cloud(creds))
         plot_data['date'] = plot_data['date'].dt.strftime('%d %m %Y')
         st.line_chart(plot_data, x='date', y='points')
+
+        st.subheader("Incremantal Data:")
+        y = [0]
+        for i in range(len(plot_data['points'])-1):
+            y.append(plot_data['points'][i]+plot_data['points'][i+1])
+        plot_data['increasing'] = y
+        st.line_chart(plot_data, x='date', y='increasing')
 
         st.subheader("and all the news found:")
         st.dataframe(classified_news)
@@ -137,9 +146,17 @@ if submitted:
 
     else:
         st.info("No news, no predictions, try later ;) (still get the historical data)", icon="❗")
+        st.subheader("Historical data:")
         plot_data = pd.DataFrame(download_data_from_cloud(creds))
         plot_data['date'] = plot_data['date'].dt.strftime('%d %m %Y')
         st.line_chart(plot_data, x='date', y='points')
+
+        st.subheader("Incremantal Data:")
+        y = [0]
+        for i in range(len(plot_data['points'])-1):
+            y.append(plot_data['points'][i]+plot_data['points'][i+1])
+        plot_data['increasing'] = y
+        st.line_chart(plot_data, x='date', y='increasing')
 
 
 
