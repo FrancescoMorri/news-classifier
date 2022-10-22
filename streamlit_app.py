@@ -2,12 +2,14 @@ import numpy as np
 from torch.utils.data import TensorDataset, DataLoader, SequentialSampler
 from helpers import *
 from scraping import *
-from datetime import datetime
+from datetime import datetime, timedelta, timezone
 import streamlit as st
 import pandas as pd
 import json
 from google.cloud import firestore
 from google.oauth2 import service_account
+import yfinance as yf
+import altair as alt
 
 
 def load_data_on_cloud(date, evaluation, key):
@@ -35,6 +37,16 @@ def download_data_from_cloud(key):
     doc_ref = db.collection("news-history").document("date-points")
 
     return doc_ref.get().to_dict()
+
+def get_money(name, start, end):
+    start = start + timedelta(days=1)
+    end = end + timedelta(days=1)
+    tick = yf.Ticker(name)
+    value = tick.history(start=start, end=end, interval="1d")
+    value['mean'] = list(value[['High', 'Low']].mean(axis=1))
+    value = value.reset_index()
+    value['Date'] = value['Date'].dt.strftime('%d %m %Y')
+    return value
 
 
 
@@ -68,6 +80,7 @@ found_news = False
 hist_data = download_data_from_cloud(creds)
 
 last_date = hist_data['date'][-1]
+start_date = hist_data['date'][0]
 today_flag = False
 today_econ_val = 0
 
@@ -128,17 +141,51 @@ if submitted:
         st.subheader("The evaluation of today economic situation is:")
         st.write(final_val)
 
-        st.subheader("Historical data:")
+        st.subheader("Historical data")
         plot_data = pd.DataFrame(download_data_from_cloud(creds))
         plot_data['date'] = plot_data['date'].dt.strftime('%d %m %Y')
-        st.line_chart(plot_data, x='date', y='points')
 
-        st.subheader("Incremantal Data:")
+        g = alt.Chart(plot_data).mark_area(
+            line={'color':'#C5D013'},
+            color = '#D7DF5F'
+        ).encode(
+            x=alt.X('date', axis=alt.Axis(title="Date")),
+            y=alt.Y('points', axis=alt.Axis(title="Increasing", titleColor='#C5D013'))
+        ).interactive()
+
+        st.altair_chart(g, use_container_width=True)
+
+
+        st.subheader("Incremantal Data")
         y = [0]
         for i in range(len(plot_data['points'])-1):
             y.append(plot_data['points'][i]+plot_data['points'][i+1])
         plot_data['increasing'] = y
-        st.line_chart(plot_data, x='date', y='increasing')
+
+        g = alt.Chart(plot_data).mark_area(
+            line={'color':'#5276A7'},
+            color = '#97B0D1'
+        ).encode(
+            x=alt.X('date', axis=alt.Axis(title="Date")),
+            y=alt.Y('increasing', axis=alt.Axis(title="Increasing", titleColor='#5276A7')),
+        ).interactive()
+
+        st.altair_chart(g, use_container_width=True)
+        #st.line_chart(plot_data, x='date', y='increasing')
+
+
+        st.subheader("S&P500 index")
+        data = get_money("^GSPC", start_date, datetime.now(timezone.utc))
+        
+        g = alt.Chart(data).mark_area(
+            line={'color':'#167A28'},
+            color = '#52A661'
+        ).encode(
+            x=alt.X('Date', axis=alt.Axis(title="Date")),
+            y=alt.Y('mean', axis=alt.Axis(title="Mean Value", titleColor='#167A28')),
+        ).interactive()
+
+        st.altair_chart(g, use_container_width=True)
 
         st.subheader("and all the news found:")
         st.dataframe(classified_news)
@@ -146,17 +193,51 @@ if submitted:
 
     else:
         st.info("No news, no predictions, try later ;) (still get the historical data)", icon="❗")
-        st.subheader("Historical data:")
+        
+        st.subheader("Historical data")
         plot_data = pd.DataFrame(download_data_from_cloud(creds))
         plot_data['date'] = plot_data['date'].dt.strftime('%d %m %Y')
-        st.line_chart(plot_data, x='date', y='points')
 
-        st.subheader("Incremantal Data:")
+        g = alt.Chart(plot_data).mark_area(
+            line={'color':'#C5D013'},
+            color = '#D7DF5F'
+        ).encode(
+            x=alt.X('date', axis=alt.Axis(title="Date")),
+            y=alt.Y('points', axis=alt.Axis(title="Increasing", titleColor='#C5D013'))
+        ).interactive()
+
+        st.altair_chart(g, use_container_width=True)
+
+        st.subheader("Incremantal Data")
         y = [0]
         for i in range(len(plot_data['points'])-1):
             y.append(plot_data['points'][i]+plot_data['points'][i+1])
         plot_data['increasing'] = y
-        st.line_chart(plot_data, x='date', y='increasing')
+
+        g = alt.Chart(plot_data).mark_area(
+            line={'color':'#5276A7'},
+            color = '#97B0D1'
+        ).encode(
+            x=alt.X('date', axis=alt.Axis(title="Date")),
+            y=alt.Y('increasing', axis=alt.Axis(title="Increasing", titleColor='#5276A7')),
+        ).interactive()
+
+        st.altair_chart(g, use_container_width=True)
+        #st.line_chart(plot_data, x='date', y='increasing')
+
+
+        st.subheader("S&P500 index")
+        data = get_money("^GSPC", start_date, datetime.now(timezone.utc))
+        
+        g = alt.Chart(data).mark_area(
+            line={'color':'#167A28'},
+            color = '#52A661'
+        ).encode(
+            x=alt.X('Date', axis=alt.Axis(title="Date")),
+            y=alt.Y('mean', axis=alt.Axis(title="Mean Value", titleColor='#167A28')),
+        ).interactive()
+
+        st.altair_chart(g, use_container_width=True)
 
 
 
