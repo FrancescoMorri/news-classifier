@@ -159,7 +159,8 @@ if submitted:
         st.subheader("Incremantal Data")
         y = [0]
         for i in range(len(plot_data['points'])-1):
-            y.append(plot_data['points'][i]+plot_data['points'][i+1])
+            new_val = y[i]+plot_data['points'][i+1]
+            y.append(new_val)
         plot_data['increasing'] = y
 
         g = alt.Chart(plot_data).mark_area(
@@ -211,7 +212,8 @@ if submitted:
         st.subheader("Incremantal Data")
         y = [0]
         for i in range(len(plot_data['points'])-1):
-            y.append(plot_data['points'][i]+plot_data['points'][i+1])
+            new_val = y[i]+plot_data['points'][i+1]
+            y.append(new_val)
         plot_data['increasing'] = y
 
         g = alt.Chart(plot_data).mark_area(
