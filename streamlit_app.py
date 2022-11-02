@@ -143,7 +143,7 @@ if submitted:
 
         st.subheader("Historical data")
         plot_data = pd.DataFrame(download_data_from_cloud(creds))
-        plot_data['date'] = plot_data['date'].dt.strftime('%d %m %Y')
+        plot_data['date'] = plot_data['date'].dt.strftime('%Y %m %d')
 
         g = alt.Chart(plot_data).mark_area(
             line={'color':'#C5D013'},
@@ -197,7 +197,7 @@ if submitted:
         
         st.subheader("Historical data")
         plot_data = pd.DataFrame(download_data_from_cloud(creds))
-        plot_data['date'] = plot_data['date'].dt.strftime('%d %m %Y')
+        plot_data['date'] = plot_data['date'].dt.strftime('%Y %m %d')
 
         g = alt.Chart(plot_data).mark_area(
             line={'color':'#C5D013'},
