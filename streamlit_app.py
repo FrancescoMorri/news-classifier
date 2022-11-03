@@ -45,7 +45,7 @@ def get_money(name, start, end):
     value = tick.history(start=start, end=end, interval="1d")
     value['mean'] = list(value[['High', 'Low']].mean(axis=1))
     value = value.reset_index()
-    value['Date'] = value['Date'].dt.strftime('%d %m %Y')
+    value['Date'] = value['Date'].dt.strftime('%Y %m %d')
     return value
 
 
