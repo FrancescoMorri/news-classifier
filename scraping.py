@@ -75,7 +75,7 @@ def get_REUTERS(today_only = True):
     older_news = {'news':[],'date':[]}
     for i,date in enumerate(news_date):
         #print("%d. %s %s"%(i+1,news_title[i],date), end='\t')
-        if 'EDT' in date:
+        if 'EST' in date or 'EDT' in date or 'AM' in date or 'PM' in date:
             today_news.append(news_title[i])
             #print(colored("today",'blue',attrs=['bold']))
         else:
