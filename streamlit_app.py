@@ -183,7 +183,7 @@ if submitted:
             color = '#52A661'
         ).encode(
             x=alt.X('Date', axis=alt.Axis(title="Date")),
-            y=alt.Y('mean', axis=alt.Axis(title="Mean Value", titleColor='#167A28')),
+            y=alt.Y('mean', axis=alt.Axis(title="Mean Value", titleColor='#167A28'), scale=alt.Scale(domain=[min(data['mean'])-150,max(data['mean'])+150])),
         ).interactive()
 
         st.altair_chart(g, use_container_width=True)
@@ -236,7 +236,7 @@ if submitted:
             color = '#52A661'
         ).encode(
             x=alt.X('Date', axis=alt.Axis(title="Date")),
-            y=alt.Y('mean', axis=alt.Axis(title="Mean Value", titleColor='#167A28')),
+            y=alt.Y('mean', axis=alt.Axis(title="Mean Value", titleColor='#167A28'), scale=alt.Scale(domain=[min(data['mean'])-150,max(data['mean'])+150])),
         ).interactive()
 
         st.altair_chart(g, use_container_width=True)
